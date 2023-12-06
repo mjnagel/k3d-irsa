@@ -105,7 +105,7 @@ sleep 10
 kubectl apply -f deploy/patch-job.yaml
 ```
 
-Validate that the webhook pod is running and no errors are listed:
+Validate that the webhook pod is running and bot jobs completed successfully:
 ```console
 kubectl get po -n irsa
 ```
