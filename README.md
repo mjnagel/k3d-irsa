@@ -8,6 +8,7 @@ This is a guide on how to setup IRSA on k3d. It is primarily based on the [guide
 export PRIV_KEY="sa-signer.key"
 export PUB_KEY="sa-signer.key.pub"
 export PKCS_KEY="sa-signer-pkcs8.pub"
+# Enter no passphrase for the key
 ssh-keygen -t rsa -b 2048 -f $PRIV_KEY -m pem
 ssh-keygen -e -m PKCS8 -f $PUB_KEY > $PKCS_KEY
 ```
@@ -83,6 +84,8 @@ k3d cluster create -v $(pwd):/irsa \
   --k3s-arg "--kube-apiserver-arg=--service-account-issuer=https://${ISSUER_HOSTPATH}"@server:\*
 ```
 
+Wait until the cluster default resources (networking, etc) are healthy before proceeding.
+
 ## Apply the pod identity webhook
 
 ```console
@@ -100,6 +103,11 @@ kubectl apply -f deploy/service.yaml
 sleep 10
 # Create webhook cert patch job
 kubectl apply -f deploy/patch-job.yaml
+```
+
+Validate that the webhook pod is running and no errors are listed:
+```console
+kubectl get po -n irsa
 ```
 
 ## Create an IAM role and annotate a service account to use IRSA
