@@ -122,6 +122,7 @@ For a more in depth demo see the [demo walkthrough](./WALKTHROUGH.md) which will
 ## Cleanup
 
 If you were just doing this for a demo you can clean up all the pieces you created by doing the following:
+
 ```console
 k3d cluster delete
 account_id=$(aws sts get-caller-identity --query "Account" --output text)
@@ -131,3 +132,5 @@ aws s3api delete-bucket --bucket $S3_BUCKET
 # Cleanup local files
 rm -rf $PRIV_KEY $PUB_KEY $PKCS_KEY discovery.json keys.json
 ```
+
+Don't forget to also clean up the pieces from the [walkthrough](./WALKTHROUGH.md#Cleanup) if you were created those.

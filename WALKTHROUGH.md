@@ -126,3 +126,5 @@ aws iam delete-policy --policy-arn=arn:aws:iam::${account_id}:policy/${policy_na
 aws s3 rm s3://$S3_BUCKET/demo.txt
 rm -rf demo-policy.json demo.txt demo-trust-relationship.json
 ```
+
+If you are cleaning up everything don't forget to also follow the cleanup steps from the main [reamde](./README.md#Cleanup).
