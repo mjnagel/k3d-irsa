@@ -2,23 +2,25 @@
 
 This is a guide on how to setup IRSA on k3d. It is primarily based on the [guide from AWS](https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md) with adaptations for k3d and the latest k8s versions.
 
+The only pre-requisites are to have k3d and aws-cli installed locally, as well as local access to an AWS account with permissions to operate on IAM and S3 resources. For a seamless copy-paste experience it is also helpful to run `export AWS_PAGER=""` which will ensure that the aws-cli will not open an interactive pager after resource creation.
+
 ## Generate the keypair
 
 ```console
 export PRIV_KEY="sa-signer.key"
 export PUB_KEY="sa-signer.key.pub"
 export PKCS_KEY="sa-signer-pkcs8.pub"
-# Enter no passphrase for the key
-ssh-keygen -t rsa -b 2048 -f $PRIV_KEY -m pem
+# Skipping passphrase for the key
+ssh-keygen -t rsa -b 2048 -f $PRIV_KEY -m pem -P ""
 ssh-keygen -e -m PKCS8 -f $PUB_KEY > $PKCS_KEY
 ```
 
 ## Make S3 Bucket
 
-Note: Make sure to modify the command below to set `S3_BUCKET` to a unique name:
+Note: By default the below commands set `S3_BUCKET` to part of your AWS username + a suffix with a few random characters and `-irsa`. You may want to change this to something you can remember easily, the default is for easy use when copy-pasting.
 
 ```console
-export S3_BUCKET=<your-unique-name-here>
+export S3_BUCKET=$(aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/' | awk -F'.' '{print $1}')-$(openssl rand -base64 20 | tr -dc 'a-z' | head -c 3)-irsa
 _bucket_name=$(aws s3api list-buckets  --query "Buckets[?Name=='$S3_BUCKET'].Name | [0]" --out text)
 if [ $_bucket_name = "None" ]; then
   aws s3api create-bucket --bucket $S3_BUCKET --create-bucket-configuration LocationConstraint=$AWS_REGION --object-ownership=BucketOwnerPreferred
@@ -51,9 +53,7 @@ cat <<EOF > discovery.json
     ]
 }
 EOF
-```
 
-```console
 go run ./main.go -key $PKCS_KEY  | jq '.keys += [.keys[0]] | .keys[1].kid = ""' > keys.json
 ```
 

@@ -102,7 +102,7 @@ spec:
 EOF
 ```
 
-Now let's validate we can pull the demo file from our bucket:
+Wait until the pod is running, then validate we can pull the demo file from our bucket:
 ```console
 kubectl exec -it aws-cli-pod -- env FILE=s3://$S3_BUCKET/demo.txt bash
 
