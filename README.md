@@ -1,6 +1,6 @@
 # IRSA on k3d
 
-This is a guide on how to setup IRSA on k3d. It is primarily based on the [guide from AWS](https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md) with adaptations for k3d and the latest k8s versions.
+This is a guide on how to setup IRSA on a local k3d cluster. The goal of this guide is to provide authentication between a local dev cluster and remote AWS resources (S3, etc). It is primarily based on the [guide from AWS](https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md) with specific steps for k3d and streamlined for simplicity with aws-cli.
 
 The only pre-requisites are to have k3d and aws-cli installed locally, as well as local access to an AWS account with permissions to operate on IAM and S3 resources. For a seamless copy-paste experience it is also helpful to run `export AWS_PAGER=""` which will ensure that the aws-cli will not open an interactive pager after resource creation.
 
