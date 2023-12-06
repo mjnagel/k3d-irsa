@@ -66,8 +66,8 @@ aws s3 cp --acl public-read ./keys.json s3://$S3_BUCKET/keys.json
 ## Configure OIDC provider in AWS IAM
 
 Follow the guide [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) using the below values:
-- Provider: https://$ISSUER_HOSTPATH
-- Audience: irsa
+- Provider: `https://$ISSUER_HOSTPATH` (fill in with actual value)
+- Audience: `irsa`
 
 ## Create your k3d cluster
 
@@ -84,11 +84,27 @@ k3d cluster create -v $(pwd):/irsa \
 ## Apply the pod identity webhook
 
 ```console
+# Create namespace and cert job
 kubectl apply -f deploy/namespace.yaml
 kubectl apply -f deploy/create-job.yaml
+# Sleep for secret creation
+sleep 10
+# Deploy webhook resources
 kubectl apply -f deploy/auth.yaml
 kubectl apply -f deploy/deployment-base.yaml
 kubectl apply -f deploy/mutatingwebhook.yaml
 kubectl apply -f deploy/service.yaml
+# Sleep for webhook to be created
+sleep 10
+# Create webhook cert patch job
 kubectl apply -f deploy/patch-job.yaml
 ```
+
+## Create an IAM role and annotate a service account to use IRSA
+
+From this point everything should be configured and now the flow looks like this:
+- Create an IAM Policy (for example: allow access to get objects from your bucket)
+- Create an IAM Role associated with your service account
+- Create a service account and pod with the `irsa/role-arn` annotation to assume
+
+For a more in depth demo see the [demo walkthrough](./WALKTHROUGH.md) which will step you through creating a pod to access an S3 bucket.
