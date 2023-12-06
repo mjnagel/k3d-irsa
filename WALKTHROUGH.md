@@ -124,4 +124,5 @@ aws iam detach-role-policy --role-name ${role_name} --policy-arn=arn:aws:iam::${
 aws iam delete-role --role-name ${role_name}
 aws iam delete-policy --policy-arn=arn:aws:iam::${account_id}:policy/${policy_name}
 aws s3 rm s3://$S3_BUCKET/demo.txt
+rm -rf demo-policy.json demo.txt demo-trust-relationship.json
 ```

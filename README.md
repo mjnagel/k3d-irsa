@@ -65,9 +65,11 @@ aws s3 cp --acl public-read ./keys.json s3://$S3_BUCKET/keys.json
 
 ## Configure OIDC provider in AWS IAM
 
-Follow the guide [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) using the below values:
-- Provider: `https://$ISSUER_HOSTPATH` (fill in with actual value)
-- Audience: `irsa`
+Note that since we are using S3 the thumbprint list is not important, but required by the AWS CLI. In a real environment with a different provider you could follow [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html) to find the thumbprint.
+
+```console
+aws iam create-open-id-connect-provider --url https://$ISSUER_HOSTPATH --client-id-list irsa --thumbprint-list demodemodemodemodemodemodemodemodemodemo
+```
 
 ## Create your k3d cluster
 
@@ -108,3 +110,16 @@ From this point everything should be configured and now the flow looks like this
 - Create a service account and pod with the `irsa/role-arn` annotation to assume
 
 For a more in depth demo see the [demo walkthrough](./WALKTHROUGH.md) which will step you through creating a pod to access an S3 bucket.
+
+## Cleanup
+
+If you were just doing this for a demo you can clean up all the pieces you created by doing the following:
+```console
+k3d cluster delete
+account_id=$(aws sts get-caller-identity --query "Account" --output text)
+aws iam delete-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam::${account_id}:oidc-provider/${ISSUER_HOSTPATH}
+aws s3 rm s3://$S3_BUCKET --recursive
+aws s3api delete-bucket --bucket $S3_BUCKET
+# Cleanup local files
+rm -rf $PRIV_KEY $PUB_KEY $PKCS_KEY discovery.json keys.json
+```
