@@ -115,9 +115,11 @@ kubectl get po -n irsa
 From this point everything should be configured and now the flow looks like this:
 - Create an IAM Policy (for example: allow access to get objects from your bucket)
 - Create an IAM Role associated with your service account
-- Create a service account and pod with the `irsa/role-arn` annotation to assume
+- Create a service account and pod with the `irsa/role-arn` annotation to assume 
 
-For a more in depth demo see the [demo walkthrough](./WALKTHROUGH.md) which will step you through creating a pod to access an S3 bucket.
+Note that the annotation is intentionally different from the standard EKS annotation, and could be set to anything by modifying the `annotation-prefix` to something different in `deploy/deployment-base.yaml`. 
+
+For a more in depth demo see the [demo walkthrough](./WALKTHROUGH.md) which will go through the above steps with examples to give a pod access to an S3 bucket.
 
 ## Cleanup
 
