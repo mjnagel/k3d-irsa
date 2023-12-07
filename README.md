@@ -54,7 +54,7 @@ cat <<EOF > discovery.json
 }
 EOF
 
-go run ./main.go -key $PKCS_KEY  | jq '.keys += [.keys[0]] | .keys[1].kid = ""' > keys.json
+go run ./main.go -key $PKCS_KEY > keys.json
 ```
 
 Then copy these documents to your S3 bucket:
