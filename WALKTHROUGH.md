@@ -6,7 +6,7 @@ This demo assumes you have already done the setup from the main [README](./READM
 
 Let's add a txt file to our existing bucket that our pod should read:
 ```console
-echo "Hello world" >> demo.txt
+echo "Hello world" > demo.txt
 aws s3 cp --acl private ./demo.txt s3://$S3_BUCKET/demo.txt
 ```
 
