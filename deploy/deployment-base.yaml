@@ -21,6 +21,7 @@ spec:
         command:
         - /webhook
         - --in-cluster=false
+        - --sts-regional-endpoint=true
         - --namespace=kube-system
         - --service-name=pod-identity-webhook
         - --annotation-prefix=irsa
