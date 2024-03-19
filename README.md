@@ -2,7 +2,7 @@
 
 This is a guide on how to setup IRSA on a local k3d cluster. The goal of this guide is to provide authentication between a local dev cluster and remote AWS resources (S3, etc). It is primarily based on the [guide from AWS](https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md) with specific steps for k3d and streamlined for simplicity with aws-cli.
 
-The only pre-requisites are to have k3d and aws-cli installed locally, as well as local access to an AWS account with permissions to operate on IAM and S3 resources. For a seamless copy-paste experience it is also helpful to run `export AWS_PAGER=""` which will ensure that the aws-cli will not open an interactive pager after resource creation.
+The only pre-requisites are to have k3d, aws-cli, and go installed locally, as well as local access to an AWS account with permissions to operate on IAM and S3 resources. For a seamless copy-paste experience it is also helpful to run `export AWS_PAGER=""` which will ensure that the aws-cli will not open an interactive pager after resource creation.
 
 ## Generate the keypair
 
@@ -17,7 +17,7 @@ ssh-keygen -e -m PKCS8 -f $PUB_KEY > $PKCS_KEY
 
 ## Make S3 Bucket
 
-Note: By default the below commands set `S3_BUCKET` to part of your AWS username + a suffix with a few random characters and `-irsa`. You may want to change this to something you can remember easily, the default is for easy use when copy-pasting.
+Note: By default the below commands set `S3_BUCKET` to part of your AWS username + a suffix with a few random characters and `-irsa`. You may want to change this to something you can remember easily, the default is for easy use when copy-pasting from this guide.
 
 ```console
 export S3_BUCKET=$(aws sts get-caller-identity --query Arn --output text | cut -f 2 -d '/' | awk -F'.' '{print $1}')-$(openssl rand -base64 20 | tr -dc 'a-z' | head -c 3)-irsa
@@ -66,7 +66,7 @@ aws s3 cp --acl public-read ./keys.json s3://$S3_BUCKET/keys.json
 
 ## Configure OIDC provider in AWS IAM
 
-Note that since we are using S3 the thumbprint list is not important, but required by the AWS CLI. In a real environment with a different provider you could follow [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html) to find the thumbprint.
+Note that since we are using S3 for our OIDC provider, the thumbprint list is not important but is required by the AWS CLI. In a production environment with a different provider you could follow [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html) to find the thumbprint.
 
 ```console
 aws iam create-open-id-connect-provider --url https://$ISSUER_HOSTPATH --client-id-list irsa --thumbprint-list demodemodemodemodemodemodemodemodemodemo
@@ -74,7 +74,7 @@ aws iam create-open-id-connect-provider --url https://$ISSUER_HOSTPATH --client-
 
 ## Create your k3d cluster
 
-Note that the volume mount requires that this be run from this repo, or modify the command as necessary:
+Note that the volume mount requires that this be run from this repo, or modify the command as necessary to volume mount from a different location.
 
 ```console
 k3d cluster create -v $(pwd):/irsa \
@@ -105,14 +105,14 @@ sleep 10
 kubectl apply -f deploy/patch-job.yaml
 ```
 
-Validate that the webhook pod is running and bot jobs completed successfully:
+Validate that the webhook pod is running and cert jobs completed successfully:
 ```console
 kubectl get po -n irsa
 ```
 
 ## Create an IAM role and annotate a service account to use IRSA
 
-From this point everything should be configured and now the flow looks like this:
+From this point everything should be configured you can follow typical IRSA flows:
 - Create an IAM Policy (for example: allow access to get objects from your bucket)
 - Create an IAM Role associated with your service account
 - Create a service account and pod with the `irsa/role-arn` annotation to assume 
@@ -135,4 +135,4 @@ aws s3api delete-bucket --bucket $S3_BUCKET
 rm -rf $PRIV_KEY $PUB_KEY $PKCS_KEY discovery.json keys.json
 ```
 
-Don't forget to also clean up the pieces from the [walkthrough](./WALKTHROUGH.md#Cleanup) if you were created those.
+Don't forget to also clean up the pieces from the [walkthrough](./WALKTHROUGH.md#Cleanup) if you created those.
