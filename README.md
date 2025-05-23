@@ -1,8 +1,19 @@
 # IRSA on k3d
 
-This is a guide on how to setup IRSA on a local k3d cluster. The goal of this guide is to provide authentication between a local dev cluster and remote AWS resources (S3, etc). It is primarily based on the [guide from AWS](https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md) with specific steps for k3d and streamlined for simplicity with aws-cli.
+This is a guide on how to setup IRSA (IAM Roles for Service Accounts) on a local k3d cluster. The goal is to provide authentication between a local development cluster and remote AWS resources (S3, etc). It is primarily based on the [guide from AWS](https://github.com/aws/amazon-eks-pod-identity-webhook/blob/master/SELF_HOSTED_SETUP.md) with specific steps for k3d and streamlined for simplicity.
 
-The only pre-requisites are to have k3d, aws-cli, and go installed locally, as well as local access to an AWS account with permissions to operate on IAM and S3 resources. For a seamless copy-paste experience it is also helpful to run `export AWS_PAGER=""` which will ensure that the aws-cli will not open an interactive pager after resource creation.
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **[k3d](https://k3d.io/stable/)**: For creating and managing local Kubernetes clusters
+- **[kubectl](https://kubernetes.io/docs/reference/kubectl/)**: For interacting with the Kubernetes cluster
+- **[Helm](https://helm.sh/)**: For deploying the IRSA webhook
+- **[aws-cli](https://aws.amazon.com/cli/)**: For AWS resource management
+- **[go](https://go.dev/)**: For generating the OIDC keys
+- **AWS Account**: With permissions to operate on IAM and S3 resources
+
+> **Tip**: Run `export AWS_PAGER=""` to ensure the aws-cli doesn't open an interactive pager after resource creation.
 
 ## Generate the keypair
 
@@ -92,45 +103,82 @@ The pod identity webhook is deployed using Helm, which provides proper resource 
 
 ```console
 # Install using Helm (will create the namespace if it doesn't exist)
-helm upgrade -i irsa ./chart -n irsa --create-namespace --wait
+helm upgrade -i irsa ./charts/irsa -n irsa --create-namespace --wait
 ```
 
-The Helm chart provides several configuration options through values.yaml:
+### Configuration Options
 
-- Configure the annotation prefix (default: `irsa`)
-- Set the AWS region for STS endpoints
-- Update the webhook image version
+The Helm chart provides several configuration options through `values.yaml`:
 
-See the chart's [README.md](./chart/README.md) for more details on available configuration options.
+| Option | Description | Default |
+|--------|-------------|--------|
+| `podIdentityWebhook.config.annotationPrefix` | Annotation prefix for service accounts | `irsa` |
+| `podIdentityWebhook.config.region` | AWS region for STS endpoints | `us-east-1` |
+| `podIdentityWebhook.image.tag` | Pod identity webhook image version | `v0.6.7` |
+
+See the chart's [README.md](./charts/irsa/README.md) for more details on available configuration options.
+
+### Verify Deployment
 
 Validate that the webhook pod is running and cert jobs completed successfully:
+
 ```console
-kubectl get po -n irsa
+kubectl get pods -n irsa
 ```
 
-## Create an IAM role and annotate a service account to use IRSA
+## Using IRSA with your applications
 
-From this point everything should be configured you can follow typical IRSA flows:
-- Create an IAM Policy (for example: allow access to get objects from your bucket)
-- Create an IAM Role associated with your service account
-- Create a service account and pod with the `irsa/role-arn` annotation to assume 
+Once the webhook is deployed, you can follow these steps to use IRSA with your applications:
 
-Note that the annotation is intentionally different from the standard EKS annotation, and can be customized by setting the `podIdentityWebhook.config.annotationPrefix` value in your Helm chart values.
+1. **Create an IAM Policy** - Define permissions for accessing AWS resources (e.g., S3 bucket access)
+2. **Create an IAM Role** - Associate it with your Kubernetes service account
+3. **Annotate your Service Account** - Use the `irsa/role-arn` annotation to specify the IAM role
+
+```console
+# Example: Annotate a service account with an IAM role
+kubectl annotate serviceaccount -n default my-service-account \
+  irsa/role-arn=arn:aws:iam::<account-id>:role/<role-name>
+```
+
+> **Note**: The annotation prefix (`irsa`) is intentionally different from the standard EKS annotation and can be customized by setting the `podIdentityWebhook.config.annotationPrefix` value in your Helm chart.
 
 For a more in depth demo see the [demo walkthrough](./WALKTHROUGH.md) which will go through the above steps with examples to give a pod access to an S3 bucket.
 
 ## Cleanup
 
-If you were just doing this for a demo you can clean up all the pieces you created by doing the following:
+When you're done with the demo, you can clean up all resources with the following steps:
+
+### 1. Remove the Helm chart
+
+```console
+helm uninstall irsa -n irsa
+```
+
+### 2. Delete the k3d cluster
 
 ```console
 k3d cluster delete
+```
+
+### 3. Remove AWS resources
+
+```console
+# Get your AWS account ID
 account_id=$(aws sts get-caller-identity --query "Account" --output text)
-aws iam delete-open-id-connect-provider --open-id-connect-provider-arn arn:aws:iam::${account_id}:oidc-provider/${ISSUER_HOSTPATH}
+
+# Delete the OIDC provider
+aws iam delete-open-id-connect-provider --open-id-connect-provider-arn \
+  arn:aws:iam::${account_id}:oidc-provider/${ISSUER_HOSTPATH}
+
+# Remove S3 bucket contents and the bucket itself
 aws s3 rm s3://$S3_BUCKET --recursive
 aws s3api delete-bucket --bucket $S3_BUCKET
-# Cleanup local files
+```
+
+### 4. Clean up local files
+
+```console
 rm -rf $PRIV_KEY $PUB_KEY $PKCS_KEY discovery.json keys.json
 ```
 
-Don't forget to also clean up the pieces from the [walkthrough](./WALKTHROUGH.md#Cleanup) if you created those.
+> **Note**: If you followed the [demo walkthrough](./WALKTHROUGH.md), don't forget to also clean up those resources by following the [walkthrough cleanup instructions](./WALKTHROUGH.md#Cleanup).
