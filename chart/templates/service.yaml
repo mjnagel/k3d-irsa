@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pod-identity-webhook
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: {{ .Values.podIdentityWebhook.service.port }}
+    targetPort: {{ .Values.podIdentityWebhook.service.targetPort }}
+  selector:
+    app: pod-identity-webhook

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-identity-webhook
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-identity-webhook
+  template:
+    metadata:
+      labels:
+        app: pod-identity-webhook
+    spec:
+      serviceAccountName: pod-identity-webhook
+      containers:
+      - name: pod-identity-webhook
+        image: {{ .Values.podIdentityWebhook.image.repository }}:{{ .Values.podIdentityWebhook.image.tag }}
+        imagePullPolicy: {{ .Values.podIdentityWebhook.image.pullPolicy }}
+        command:
+        - /webhook
+        - --in-cluster=false
+        - --sts-regional-endpoint={{ .Values.podIdentityWebhook.config.stsRegionalEndpoint }}
+        - --namespace={{ .Values.podIdentityWebhook.config.namespace }}
+        - --service-name={{ .Values.podIdentityWebhook.config.serviceName }}
+        - --annotation-prefix={{ .Values.podIdentityWebhook.config.annotationPrefix }}
+        - --token-audience={{ .Values.podIdentityWebhook.config.tokenAudience }}
+        - --logtostderr
+        {{- if .Values.podIdentityWebhook.config.region }}
+        - --aws-default-region={{ .Values.podIdentityWebhook.config.region }}
+        {{- end }}
+        volumeMounts:
+        - name: cert
+          mountPath: "/etc/webhook/certs"
+          readOnly: true
+      volumes:
+      - name: cert
+        secret:
+          secretName: {{ .Values.webhookCert.config.secretName }}

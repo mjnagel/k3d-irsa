@@ -86,24 +86,22 @@ k3d cluster create -v $(pwd):/irsa \
 
 Wait until the cluster default resources (networking, etc) are healthy before proceeding.
 
-## Apply the pod identity webhook
+## Deploy the pod identity webhook
+
+The pod identity webhook is deployed using Helm, which provides proper resource orchestration and configuration options:
 
 ```console
-# Create namespace and cert job
-kubectl apply -f deploy/namespace.yaml
-kubectl apply -f deploy/create-job.yaml
-# Sleep for secret creation
-sleep 10
-# Deploy webhook resources
-kubectl apply -f deploy/auth.yaml
-kubectl apply -f deploy/deployment-base.yaml
-kubectl apply -f deploy/mutatingwebhook.yaml
-kubectl apply -f deploy/service.yaml
-# Sleep for webhook to be created
-sleep 10
-# Create webhook cert patch job
-kubectl apply -f deploy/patch-job.yaml
+# Install using Helm (will create the namespace if it doesn't exist)
+helm upgrade -i irsa ./chart -n irsa --create-namespace --wait
 ```
+
+The Helm chart provides several configuration options through values.yaml:
+
+- Configure the annotation prefix (default: `irsa`)
+- Set the AWS region for STS endpoints
+- Update the webhook image version
+
+See the chart's [README.md](./chart/README.md) for more details on available configuration options.
 
 Validate that the webhook pod is running and cert jobs completed successfully:
 ```console
@@ -117,7 +115,7 @@ From this point everything should be configured you can follow typical IRSA flow
 - Create an IAM Role associated with your service account
 - Create a service account and pod with the `irsa/role-arn` annotation to assume 
 
-Note that the annotation is intentionally different from the standard EKS annotation, and could be set to anything by modifying the `annotation-prefix` to something different in `deploy/deployment-base.yaml`. 
+Note that the annotation is intentionally different from the standard EKS annotation, and can be customized by setting the `podIdentityWebhook.config.annotationPrefix` value in your Helm chart values.
 
 For a more in depth demo see the [demo walkthrough](./WALKTHROUGH.md) which will go through the above steps with examples to give a pod access to an S3 bucket.
 

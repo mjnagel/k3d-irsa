@@ -1,0 +1,16 @@
+Thank you for installing {{ .Chart.Name }}.
+
+The IRSA (IAM Roles for Service Accounts) webhook has been deployed to your cluster.
+
+To verify the installation, check that the webhook pod is running:
+
+  kubectl get pods -n {{ .Release.Namespace }} -l app=pod-identity-webhook
+
+To use IRSA with your service accounts, annotate them with the IAM role ARN:
+
+  kubectl annotate serviceaccount -n <namespace> <service-account-name> {{ .Values.podIdentityWebhook.config.annotationPrefix }}/role-arn=arn:aws:iam::<account-id>:role/<role-name>
+
+Make sure your AWS IAM role has a trust relationship with your OIDC provider.
+
+For more information, refer to the chart README or the project documentation:
+https://github.com/aws/amazon-eks-pod-identity-webhook
