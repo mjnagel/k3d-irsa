@@ -6,17 +6,9 @@ This Helm chart deploys the IAM Roles for Service Accounts (IRSA) webhook for Ku
 
 This chart deploys the Amazon EKS Pod Identity Webhook, which allows Kubernetes service accounts to assume AWS IAM roles. This implementation is designed for use with k3d or other Kubernetes distributions where EKS IRSA is not natively available.
 
-## Prerequisites
-
-- Kubernetes 1.16+
-- Helm 3.0+
-- AWS account with appropriate permissions
-- OIDC provider configured in AWS IAM
-
 ## Installation
 
-```bash
-# Install the chart (will create the namespace if it doesn't exist)
+```console
 helm install irsa ./chart -n irsa --create-namespace
 ```
 
@@ -53,10 +45,5 @@ The annotation prefix (`irsa` by default) can be customized through the `podIden
 ## Uninstallation
 
 ```bash
-helm uninstall irsa
+helm uninstall irsa -n irsa
 ```
-
-## Notes
-
-- This chart uses Helm hooks to properly sequence the creation of resources and certificate generation
-- The webhook patch job runs after installation to configure the webhook with the generated certificates

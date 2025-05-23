@@ -3,9 +3,9 @@ name: irsa
 description: A Helm chart for IRSA (IAM Roles for Service Accounts) on Kubernetes
 type: application
 version: 0.1.0
-appVersion: "0.5.2"
+appVersion: "0.6.7"
 maintainers:
-  - name: Micah Nagel
+  - name: mjnagel
 keywords:
   - irsa
   - aws
