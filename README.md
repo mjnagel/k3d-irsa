@@ -92,7 +92,7 @@ The pod identity webhook is deployed using Helm, which provides proper resource 
 
 ```console
 # Install using Helm (will create the namespace if it doesn't exist)
-helm upgrade -i irsa ./charts/irsa -n irsa --create-namespace --wait
+helm upgrade -i irsa ./chart -n irsa --create-namespace --wait
 ```
 
 The Helm chart provides several configuration options through values.yaml:
@@ -101,7 +101,7 @@ The Helm chart provides several configuration options through values.yaml:
 - Set the AWS region for STS endpoints
 - Update the webhook image version
 
-See the chart's [README.md](./charts/irsa/README.md) for more details on available configuration options.
+See the chart's [README.md](./chart/README.md) for more details on available configuration options.
 
 Validate that the webhook pod is running and cert jobs completed successfully:
 ```console

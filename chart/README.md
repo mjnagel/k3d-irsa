@@ -17,7 +17,7 @@ This chart deploys the Amazon EKS Pod Identity Webhook, which allows Kubernetes 
 
 ```bash
 # Install the chart (will create the namespace if it doesn't exist)
-helm install irsa ./charts/irsa -n irsa --create-namespace
+helm install irsa ./chart -n irsa --create-namespace
 ```
 
 ## Configuration

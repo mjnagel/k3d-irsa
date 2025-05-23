@@ -3,7 +3,7 @@
 This demo assumes you have already done the setup from the main [README](./README.md) and have setup the env variables created by that demo. The IRSA webhook should be deployed using the Helm chart as described in the README:
 
 ```console
-helm install irsa ./charts/irsa -n irsa --create-namespace
+helm install irsa ./chart -n irsa --create-namespace
 ```
 
 ## Add a private file to our bucket
