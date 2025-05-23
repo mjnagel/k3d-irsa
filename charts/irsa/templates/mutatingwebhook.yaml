@@ -2,14 +2,14 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: pod-identity-webhook
-  namespace: irsa
+  namespace: {{ .Release.Namespace }}
 webhooks:
 - name: pod-identity-webhook.amazonaws.com
   failurePolicy: Ignore
   clientConfig:
     service:
       name: pod-identity-webhook
-      namespace: irsa
+      namespace: {{ .Release.Namespace }}
       path: "/mutate"
   rules:
   - operations: [ "CREATE" ]

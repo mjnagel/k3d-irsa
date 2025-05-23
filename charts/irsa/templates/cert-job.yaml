@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: certgen-sa
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-10"
+    helm.sh/hook-delete-policy: before-hook-creation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: certgen-role
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-8"
+    helm.sh/hook-delete-policy: before-hook-creation
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "create", "update"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: certgen-role-binding
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-8"
+    helm.sh/hook-delete-policy: before-hook-creation
+subjects:
+- kind: ServiceAccount
+  name: certgen-sa
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: certgen-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: certgen-job
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  template:
+    metadata:
+      name: certgen-pod
+    spec:
+      serviceAccountName: certgen-sa
+      containers:
+      - name: certgen-container
+        image: {{ .Values.webhookCert.image.repository }}:{{ .Values.webhookCert.image.tag }}
+        imagePullPolicy: {{ .Values.webhookCert.image.pullPolicy }}
+        args:
+        - create
+        - --host=pod-identity-webhook,pod-identity-webhook.{{ .Release.Namespace }},pod-identity-webhook.{{ .Release.Namespace }}.svc,pod-identity-webhook.{{ .Release.Namespace }}.svc.local
+        - --namespace={{ .Release.Namespace }}
+        - --secret-name={{ .Values.webhookCert.config.secretName }}
+        - --cert-name={{ .Values.webhookCert.config.certName }}
+        - --key-name={{ .Values.webhookCert.config.keyName }}
+      restartPolicy: Never
