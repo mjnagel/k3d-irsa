@@ -6,7 +6,7 @@ fullnameOverride: ""
 podIdentityWebhook:
   image:
     repository: amazon/amazon-eks-pod-identity-webhook
-    tag: v0.6.7
+    tag: v0.6.8
     pullPolicy: Always
 
   # Configuration for the webhook
@@ -28,7 +28,7 @@ webhookCert:
   # Image configuration for both cert generation and webhook patching jobs
   image:
     repository: k8s.gcr.io/ingress-nginx/kube-webhook-certgen
-    tag: v1.5.3
+    tag: v1.6.0
     pullPolicy: IfNotPresent
 
   # Certificate configuration

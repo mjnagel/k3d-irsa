@@ -114,7 +114,7 @@ The Helm chart provides several configuration options through `values.yaml`:
 |--------|-------------|--------|
 | `podIdentityWebhook.config.annotationPrefix` | Annotation prefix for service accounts | `irsa` |
 | `podIdentityWebhook.config.region` | AWS region for STS endpoints | `us-east-1` |
-| `podIdentityWebhook.image.tag` | Pod identity webhook image version | `v0.6.7` |
+| `podIdentityWebhook.image.tag` | Pod identity webhook image version | `v0.6.8` |
 
 See the chart's [README.md](./charts/irsa/README.md) for more details on available configuration options.
 

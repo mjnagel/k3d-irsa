@@ -19,7 +19,7 @@ The following table lists the configurable parameters of the IRSA chart and thei
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
 | `podIdentityWebhook.image.repository` | Pod identity webhook image repository | `amazon/amazon-eks-pod-identity-webhook` |
-| `podIdentityWebhook.image.tag` | Pod identity webhook image tag | `v0.6.7` |
+| `podIdentityWebhook.image.tag` | Pod identity webhook image tag | `v0.6.8` |
 | `podIdentityWebhook.image.pullPolicy` | Pod identity webhook image pull policy | `Always` |
 | `podIdentityWebhook.config.annotationPrefix` | Annotation prefix for service accounts | `irsa` |
 | `podIdentityWebhook.config.tokenAudience` | Token audience for OIDC | `irsa` |
@@ -28,7 +28,7 @@ The following table lists the configurable parameters of the IRSA chart and thei
 | `podIdentityWebhook.config.stsRegionalEndpoint` | Use regional STS endpoints | `true` |
 | `podIdentityWebhook.config.region` | AWS region for STS endpoint | `us-east-1` |
 | `webhookCert.image.repository` | Certificate generator/patcher image repository | `k8s.gcr.io/ingress-nginx/kube-webhook-certgen` |
-| `webhookCert.image.tag` | Certificate generator/patcher image tag | `v1.5.3` |
+| `webhookCert.image.tag` | Certificate generator/patcher image tag | `v1.6.0` |
 | `webhookCert.config.secretName` | Certificate secret name | `pod-identity-webhook-cert` |
 | `rbac.create` | Create RBAC resources | `true` |
 
