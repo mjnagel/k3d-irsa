@@ -1,0 +1,28 @@
+{
+  "enabled": true,
+  "forkProcessing": "enabled",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+      ":dependencyDashboard",
+      "config:base",
+      "helpers:pinGitHubActionDigests"
+  ],
+  "ignorePresets": [
+    ":ignoreModulesAndTests"
+  ],
+  "branchConcurrentLimit": 0,
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
+  "helm-values": {
+    "fileMatch": [
+        ".*\\.ya?ml$"
+    ]
+  },
+  "packageRules": [
+    {
+      "matchFileNames": ["chart/**"],
+      "groupName": "chart",
+      "commitMessageTopic": "chart dependencies"
+    }
+  ]
+}
