@@ -22,7 +22,17 @@
     {
       "matchFileNames": ["chart/**"],
       "groupName": "chart",
-      "commitMessageTopic": "chart dependencies"
+      "commitMessageTopic": "chart"
+    },
+    {
+      "matchDatasources": [
+        "terraform-provider"
+      ],
+      "registryUrls": [
+        "https://registry.opentofu.org"
+      ],
+      "groupName": "tofu",
+      "commitMessageTopic": "tofu"
     }
   ]
 }
