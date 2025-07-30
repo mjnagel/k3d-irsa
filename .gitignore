@@ -2,4 +2,9 @@
 *.pub
 key*
 discovery.json
-demo*
+demo-*.json
+!*.yaml
+!*.sh
+.terraform*
+*.tfstate*
+test-file.txt
