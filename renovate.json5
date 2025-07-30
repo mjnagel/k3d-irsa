@@ -1,38 +1,40 @@
 {
-  "enabled": true,
-  "forkProcessing": "enabled",
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-      ":dependencyDashboard",
-      "config:base",
-      "helpers:pinGitHubActionDigests"
+  enabled: true,
+  forkProcessing: 'enabled',
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    ':dependencyDashboard',
+    'config:recommended',
+    'helpers:pinGitHubActionDigests',
   ],
-  "ignorePresets": [
-    ":ignoreModulesAndTests"
+  ignorePresets: [
+    ':ignoreModulesAndTests',
   ],
-  "branchConcurrentLimit": 0,
-  "prConcurrentLimit": 0,
-  "prHourlyLimit": 0,
-  "helm-values": {
-    "fileMatch": [
-        ".*\\.ya?ml$"
-    ]
+  branchConcurrentLimit: 0,
+  prConcurrentLimit: 0,
+  prHourlyLimit: 0,
+  'helm-values': {
+    managerFilePatterns: [
+      '/.*\\.ya?ml$/',
+    ],
   },
-  "packageRules": [
+  packageRules: [
     {
-      "matchFileNames": ["chart/**"],
-      "groupName": "chart",
-      "commitMessageTopic": "chart"
+      matchFileNames: [
+        'chart/**',
+      ],
+      groupName: 'chart',
+      commitMessageTopic: 'chart',
     },
     {
-      "matchDatasources": [
-        "terraform-provider"
+      matchDatasources: [
+        'terraform-provider',
       ],
-      "registryUrls": [
-        "https://registry.opentofu.org"
+      registryUrls: [
+        'https://registry.opentofu.org',
       ],
-      "groupName": "tofu",
-      "commitMessageTopic": "tofu"
-    }
-  ]
+      groupName: 'tofu',
+      commitMessageTopic: 'tofu',
+    },
+  ],
 }
