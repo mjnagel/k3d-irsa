@@ -3,7 +3,7 @@ name: irsa
 description: A Helm chart for IRSA (IAM Roles for Service Accounts) on Kubernetes
 type: application
 version: 0.2.0
-appVersion: "0.6.8"
+appVersion: "0.6.7"
 maintainers:
   - name: mjnagel
 keywords:
