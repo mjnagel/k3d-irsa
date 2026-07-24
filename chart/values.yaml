@@ -28,7 +28,7 @@ webhookCert:
   # Image configuration for both cert generation and webhook patching jobs
   image:
     repository: ghcr.io/jkroepke/kube-webhook-certgen
-    tag: "1.8.4"
+    tag: "1.8.5"
     pullPolicy: IfNotPresent
 
   # Certificate configuration
